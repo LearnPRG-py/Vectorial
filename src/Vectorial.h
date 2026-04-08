@@ -2,30 +2,42 @@
 #define VECTORIAL_H
 
 enum appendType { cycle, ignore };
-inline int min(int a, int b) { return (a < b) ? a : b; }
+inline uint32_t vec_min(uint32_t a, uint32_t b) {
+  return (a < b) ? a : b;
+}
 
-template <typename T, int N>
+template <typename T, uint32_t N>
 struct Vector {
   private:
       T data[N];
-      int entriesAdded = 0;
+      uint32_t entriesAdded = 0;
 
   public:
   void push_back(T element, appendType type = appendType::cycle) {
     if (type == cycle) {
-        int latest = entriesAdded % N;
+        uint32_t latest = entriesAdded % N;
         data[latest] = element;
         entriesAdded++;
     }
+    else if (type == ignore) {
+      if (entriesAdded < N) {
+        data[entriesAdded] = element;
+        entriesAdded++;
+      }
+    }
   }
 
-  T operator[](int idx) const {
+  T operator[](uint32_t idx) const {
     return data[(entriesAdded - 1 - idx + 2*N) % N]; 
   }
-  int size() const { return min(entriesAdded, N); }
+
+  uint32_t size() const {
+    return vec_min(entriesAdded, N);
+  }
+
   void reset() { 
     entriesAdded = 0; 
-    for (int i = 0; i < N; i++) {
+    for (uint32_t i = 0; i < N; i++) {
       data[i] = T{};
     }
   }
