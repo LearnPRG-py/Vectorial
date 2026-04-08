@@ -19,6 +19,18 @@ struct Vector {
     }
   }
 
+  // checks if buffer is empty
+
+  bool is_empty() {
+    return entriesAdded == 0;
+  }
+
+  // checks if buffer is full
+
+  bool is_full() {
+    return entriesAdded == N;
+  }
+
   T operator[](int idx) const {
     return data[(entriesAdded - 1 - idx + 2*N) % N]; 
   }
