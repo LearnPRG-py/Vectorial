@@ -26,4 +26,17 @@ void setup() {
 
   // Should give latest value (84)
   Serial.println(buffer[0]);
+  
+  // Returns struct VectorReturnObject
+  auto return_value = buffer.get_value(0);
+
+  // Print output only on success
+  if (return_value.success) {
+    Serial.println(return_value.value);
+  }
+
+  // If not successful it should fail.
+  else {
+    Serial.println("Failure state!");
+  }
 }

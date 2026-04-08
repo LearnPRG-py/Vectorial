@@ -31,6 +31,23 @@ struct Vector {
     return data[(entriesAdded + 2*N - 1 - idx) % N]; 
   }
 
+  struct VectorReturnObject {
+    bool success = false;
+    T value;
+  };
+
+  VectorReturnObject get_value(uint32_t idx) const {
+    VectorReturnObject ret_value;
+    if (idx >= entriesAdded) {
+      return ret_value;
+    }
+    else {
+      ret_value.success = true;
+      ret_value.value = (*this)[idx];
+      return ret_value;
+    }
+  }
+
   uint32_t size() const {
     return vec_min(entriesAdded, N);
   }

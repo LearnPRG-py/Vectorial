@@ -32,7 +32,7 @@ Vector<int, 10> vector;
 
 ## Accessing an element of a Vector
 
-An element of the vector can be accessed normally through a list accessor, for example getting indices 0 and 1 of the above vector and saving it to a variable we can use the following.
+An element of the vector can be accessed normally through a list accessor, for example getting indices 0 and 1 of the above vector and saving it to a variable we can use the following. A more type safe way to do this however is get_value(uint32_t idx)
 
 #### **Note: Index 0 always refers to the most recently appended element, with increasing indices moving toward older values.**
 
@@ -48,6 +48,7 @@ int older_value = vector[1];
 | 1    | push_back(element, appendType (optional) ) | vector.push_back(5, Cycle/Ignore) | Appends an element to the list                                                         |
 | 2    | size()                                      | vector.size()                     | Gets the current number of elements in the vector<br />(useful to check if it is full) |
 | 3    | reset()                                     | vector.reset()                    | Resets the vector to empty.                                                            |
+| 4    | get_value(uint32_t idx)                     | auto object = vector.get_value(); | A safer getter than []                                                        |
 
 ### push_back()
 
@@ -76,7 +77,7 @@ The Size() function takes no arguments but returns the number of elements in the
 For example:
 
 ```cpp
-int size = vector.size()
+uint32_t size = vector.size()
 ```
 
 ### reset()
@@ -87,6 +88,23 @@ For example:
 
 ```cpp
 vector.reset()
+```
+
+### get_value()
+
+get_value() returns a struct based on the success of the operation to get the specific value.
+This struct contains 2 values, a bool called success and the value itself (of name value) of the underlying template.
+
+The following example below showcases how the function itself can be used to verify success and fetch the value if needed.
+
+This method is usually prefered over [].
+
+```cpp
+auto ret_value = vector.get_value(3);
+if (ret_value.success) {
+  std::cout << "Value is: " << ret_value.value << "\n";
+  // Or Serial.println() on arduino.
+}
 ```
 
 # Examples
