@@ -28,7 +28,7 @@ struct Vector {
   }
 
   T operator[](uint32_t idx) const {
-    return data[(entriesAdded - 1 - idx + 2*N) % N]; 
+    return data[(entriesAdded + 2*N - 1 - idx) % N]; 
   }
 
   uint32_t size() const {
