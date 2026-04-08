@@ -1,0 +1,7 @@
+Vector	KEYWORD1
+appendType	KEYWORD1
+cycle	LITERAL1
+ignore	LITERAL1
+push_back	KEYWORD2
+size	KEYWORD2
+reset   KEYWORD2
