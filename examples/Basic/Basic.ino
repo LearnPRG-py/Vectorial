@@ -14,9 +14,11 @@ void setup() {
   }
 
   // Should give latest value (5)
+  Serial.println("Test 1");
   Serial.println(buffer[0]);
 
-  // Returns 3 last entries added 3, 4 and 5 all in newlines.
+  Serial.println("Test 2");
+  // Returns 3 last entries added 5, 4 and 3 all in newlines.
   for (int i = 0; i < buffer.size(); i++) {
     Serial.println(buffer[i]);
   }
@@ -25,9 +27,11 @@ void setup() {
   buffer.push_back(84);
 
   // Should give latest value (84)
+  Serial.println("Test 3");
   Serial.println(buffer[0]);
   
   // Returns struct VectorReturnObject
+  Serial.println("Test 4");
   auto return_value = buffer.get_value(0);
 
   // Print output only on success
@@ -39,4 +43,8 @@ void setup() {
   else {
     Serial.println("Failure state!");
   }
+}
+
+void loop() {
+  // Just do nothing
 }
