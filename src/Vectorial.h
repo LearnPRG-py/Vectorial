@@ -1,3 +1,5 @@
+#include <cstdint> 
+
 #ifndef VECTORIAL_H
 #define VECTORIAL_H
 

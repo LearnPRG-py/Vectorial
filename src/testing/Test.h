@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "../Vectorial.h"
+#include "Vectorial.h"
 
 #ifndef TEST_H
 #define TEST_H
