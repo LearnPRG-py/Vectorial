@@ -3,5 +3,5 @@ project(Vectorial)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(test testing/test.cpp)
+add_executable(test testing/Test.cpp)
 target_include_directories(test PRIVATE src)
