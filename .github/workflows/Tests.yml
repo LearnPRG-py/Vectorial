@@ -1,0 +1,38 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Set up dependencies
+        run: cd src && python3 install_deps.py
+
+      - name: Format check
+        run: |
+          cd src
+          python3 format.py
+          git diff --exit-code
+
+      - name: Compile and Run Tests
+        run: |
+          cd src
+          python3 compile.py
