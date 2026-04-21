@@ -5,3 +5,4 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(test testing/Test.cpp)
 target_include_directories(test PRIVATE src)
+target_compile_definitions(test PRIVATE CI)
