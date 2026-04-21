@@ -20,7 +20,7 @@ This library is not in the Library Manager yet, although this description will b
 
 # Documentation
 
-Full documentation is available in **[documentation.md](**documentation.md**)**.
+Full documentation is available in **[documentation.md](documentation.md)**.
 
 # Examples
 
