@@ -219,5 +219,42 @@ Not thread-safe. Designed for single-threaded Arduino contexts. Concurrent acces
 
 Both classes are defined entirely in `src/Vectorial.h`. The library conditionally includes `Arduino.h` for `millis()`. When compiled in non-Arduino environments (e.g., host-based tests), it falls back to C++ `<chrono>` to provide a compatible `millis()` function.
 
+## Math Operations
+
+For math operations, the file `src/VectorialMath.h` can be imported. The math operations include discrete integration and differenciation via the `derive()` and `integrate()` functions which each take a TimeVector as an input and smoothens data via the `moving_mean()` and `ema()` Functions.
+
+### Example: Rocket Flight System during one frame
+
+```cpp
+#include <Vectorial.h>
+#include <VectorialMath.h>
+TimedVector<float, 5> gyroData; // Angular Velocity
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {}
+  // Actual data can come from reading the sensor, these are just sample data points.
+  gyroData.push_back(1.35);
+  delay(100);
+  gyroData.push_back(1.26);
+  delay(100);
+  gyroData.push_back(1.41);
+  delay(100);
+  gyroData.push_back(1.34);
+  delay(100);
+  gyroData.push_back(1.52);
+  // Simple moving average value of the gyro data based on last 5 values:
+  float mean5 = TimedVectorMath::moving_mean(gyroData, 5);
+  // Based on last 3 values:
+  float mean3 = TimedVectorMath::moving_mean(gyroData, 3);
+  // Exponential moving average:
+  float emaVal = TimedVectorMath::ema(gyroData, 5);
+  // Differentiate for angular acceleration:
+  float angularAccel = TimedVectorMath::derive(gyroData);
+  // Integrate for angular position:
+  float angularPosition = TimedVectorMath::integrate(gyroData, 5);
+}
+void loop() {}
+```
+
 ## License
 See the LICENSE file in the repository root.

@@ -17,24 +17,20 @@ inline uint32_t millis() {
 #endif
 
 enum appendType { cycle, ignore };
-inline uint32_t vec_min(uint32_t a, uint32_t b) {
-  return (a < b) ? a : b;
-}
+inline uint32_t vec_min(uint32_t a, uint32_t b) { return (a < b) ? a : b; }
 
-template <typename T, uint32_t N>
-struct Vector {
-  private:
-      T data[N];
-      uint32_t entriesAdded = 0;
+template <typename T, uint32_t N> struct Vector {
+private:
+  T data[N];
+  uint32_t entriesAdded = 0;
 
-  public:
+public:
   void push_back(T element, appendType type = appendType::cycle) {
     if (type == cycle) {
-        uint32_t latest = entriesAdded % N;
-        data[latest] = element;
-        entriesAdded++;
-    }
-    else if (type == ignore) {
+      uint32_t latest = entriesAdded % N;
+      data[latest] = element;
+      entriesAdded++;
+    } else if (type == ignore) {
       if (entriesAdded < N) {
         data[entriesAdded] = element;
         entriesAdded++;
@@ -43,7 +39,7 @@ struct Vector {
   }
 
   T operator[](uint32_t idx) const {
-    return data[(entriesAdded + 2*N - 1 - idx) % N]; 
+    return data[(entriesAdded + 2 * N - 1 - idx) % N];
   }
 
   struct VectorReturnObject {
@@ -55,89 +51,85 @@ struct Vector {
     VectorReturnObject ret_value;
     if (idx >= entriesAdded) {
       return ret_value;
-    }
-    else {
+    } else {
       ret_value.success = true;
       ret_value.value = (*this)[idx];
       return ret_value;
     }
   }
 
-  uint32_t size() const {
-    return vec_min(entriesAdded, N);
-  }
+  uint32_t size() const { return vec_min(entriesAdded, N); }
 
-  void reset() { 
-    entriesAdded = 0; 
+  bool is_full() const { return size() == N; }
+
+  void reset() {
+    entriesAdded = 0;
     for (uint32_t i = 0; i < N; i++) {
       data[i] = T{};
     }
   }
 };
 
-template <typename T, uint32_t N>
-struct TimedVector {
-  public:
-    struct DataPoint {
-      T value;
-      uint32_t time;
-    };
+template <typename T, uint32_t N> struct TimedVector {
+public:
+  struct DataPoint {
+    T value;
+    uint32_t time;
+  };
 
-    void push_back(DataPoint element, appendType type = appendType::cycle) {
-      if (type == cycle) {
-          uint32_t latest = entriesAdded % N;
-          data[latest] = element;
-          entriesAdded++;
-      }
-      else if (type == ignore) {
-        if (entriesAdded < N) {
-          data[entriesAdded] = element;
-          entriesAdded++;
-        }
+  void push_back(DataPoint element, appendType type = appendType::cycle) {
+    if (type == cycle) {
+      uint32_t latest = entriesAdded % N;
+      data[latest] = element;
+      entriesAdded++;
+    } else if (type == ignore) {
+      if (entriesAdded < N) {
+        data[entriesAdded] = element;
+        entriesAdded++;
       }
     }
+  }
 
-    // Default to using builtin millis() arduino function 
-    // if push_back with element only.
-    void push_back(T element, appendType type = appendType::cycle) {
-      push_back({element, (uint32_t)millis()}, type);
+  // Default to using builtin millis() arduino function
+  // if push_back with element only.
+  void push_back(T element, appendType type = appendType::cycle) {
+    push_back({element, (uint32_t)millis()}, type);
+  }
+
+  DataPoint operator[](uint32_t idx) const {
+    return data[(entriesAdded + 2 * N - 1 - idx) % N];
+  }
+
+  struct VectorReturnObject {
+    bool success = false;
+    DataPoint value;
+  };
+
+  VectorReturnObject get_value(uint32_t idx) const {
+    VectorReturnObject ret_value;
+    if (idx >= entriesAdded) {
+      return ret_value;
+    } else {
+      ret_value.success = true;
+      ret_value.value = (*this)[idx];
+      return ret_value;
     }
+  }
 
-    DataPoint operator[](uint32_t idx) const {
-      return data[(entriesAdded + 2*N - 1 - idx) % N]; 
+  uint32_t size() const { return vec_min(entriesAdded, N); }
+
+  bool is_full() const { return size() == N; }
+
+  void reset() {
+    entriesAdded = 0;
+    for (uint32_t i = 0; i < N; i++) {
+      data[i] = {}; // Empty struct
     }
+  }
 
-    struct VectorReturnObject {
-      bool success = false;
-      DataPoint value;
-    };
-
-    VectorReturnObject get_value(uint32_t idx) const {
-      VectorReturnObject ret_value;
-      if (idx >= entriesAdded) {
-        return ret_value;
-      }
-      else {
-        ret_value.success = true;
-        ret_value.value = (*this)[idx];
-        return ret_value;
-      }
-    }
-
-    uint32_t size() const {
-      return vec_min(entriesAdded, N);
-    }
-
-    void reset() { 
-      entriesAdded = 0; 
-      for (uint32_t i = 0; i < N; i++) {
-        data[i] = {}; // Empty struct
-      }
-    }
-
-  private:
-    DataPoint data[N];
-    uint32_t entriesAdded = 0;
+private:
+  DataPoint data[N];
+  uint32_t entriesAdded = 0;
 };
 
 #endif

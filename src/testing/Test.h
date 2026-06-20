@@ -3,11 +3,13 @@
 #include <thread>
 
 #include "../Vectorial.h"
+#include "../VectorialMath.h"
 
 #ifndef TEST_H
 #define TEST_H
 
 // Helpers
+namespace {
 template <typename T> bool ExpectEQ(T a, T b) {
   if (a == b) {
     std::cout << "PASS! " << a << " is equal to " << b
@@ -17,6 +19,11 @@ template <typename T> bool ExpectEQ(T a, T b) {
     std::cout << "FAIL! Expected equality of: " << a << " and " << b << "\n";
     return false;
   }
+}
+
+constexpr float kEpsilon = 1e-4f;
+bool ExpectFloatEQ(float expected, float actual, float epsilon = kEpsilon) {
+  return std::fabs(expected - actual) < epsilon;
 }
 
 template <typename T> bool ExpectNEQ(T a, T b) {
@@ -31,6 +38,8 @@ template <typename T> bool ExpectNEQ(T a, T b) {
 }
 
 template <typename T> void AssertEQ(T a, T b) { assert(a == b); }
+
+} // namespace
 
 bool SimpleVectorTest() {
   constexpr int kTestCount = 9;
@@ -271,7 +280,8 @@ bool TimedVectorAsVectorTest() {
   }
 
   if (should_pass) {
-    std::cout << "TimedVectorAsVectorTest: All " << kTestCount << " tests passed!\n";
+    std::cout << "TimedVectorAsVectorTest: All " << kTestCount
+              << " tests passed!\n";
   } else {
     std::cout << "TimedVectorAsVectorTest: Some tests failed.\n";
   }
@@ -288,11 +298,11 @@ bool TimedVectorTimeTest() {
   std::cout << "[1/" << kTestCount << "] - Time field is populated\n";
   {
     TimedVector<int, 3> buffer;
-    #ifdef CI
+#ifdef CI
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    #else
+#else
     delay(2);
-    #endif
+#endif
     buffer.push_back(100);
     should_pass = ExpectNEQ(0u, buffer[0].time) && should_pass;
   }
@@ -301,11 +311,11 @@ bool TimedVectorTimeTest() {
   std::cout << "[2/" << kTestCount << "] - All entries have timestamps\n";
   {
     TimedVector<int, 3> buffer;
-    #ifdef CI
+#ifdef CI
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    #else
+#else
     delay(2);
-    #endif
+#endif
     buffer.push_back(1);
     buffer.push_back(2);
     buffer.push_back(3);
@@ -327,14 +337,15 @@ bool TimedVectorTimeTest() {
   }
 
   // Test 4: get_value returns DataPoint with time
-  std::cout << "[4/" << kTestCount << "] - get_value returns timestamped data\n";
+  std::cout << "[4/" << kTestCount
+            << "] - get_value returns timestamped data\n";
   {
     TimedVector<int, 3> buffer;
-    #ifdef CI
+#ifdef CI
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    #else
+#else
     delay(2);
-    #endif
+#endif
     buffer.push_back(999);
     auto result = buffer.get_value(0);
     should_pass = ExpectEQ(true, result.success) && should_pass;
@@ -343,9 +354,73 @@ bool TimedVectorTimeTest() {
   }
 
   if (should_pass) {
-    std::cout << "TimedVectorTimeTest: All " << kTestCount << " tests passed!\n";
+    std::cout << "TimedVectorTimeTest: All " << kTestCount
+              << " tests passed!\n";
   } else {
     std::cout << "TimedVectorTimeTest: Some tests failed.\n";
+  }
+  return should_pass;
+}
+
+bool VectorialMathTest() {
+  constexpr int kTestCount = 4;
+  bool should_pass = true;
+  std::cout << "[1/" << kTestCount << "] - Moving_Mean Test\n";
+  {
+    TimedVector<int, 5> buffer;
+    TimedVector<int, 5>::DataPoint points[5] = {
+        {10, 0}, {20, 1000}, {30, 2000}, {40, 3000}, {50, 4000}};
+    for (auto &p : points) {
+      buffer.push_back(p);
+    }
+    // moving_mean over last 3: (50+40+30)/3 = 40.0
+    should_pass =
+        ExpectEQ(40.0f, TimedVectorMath::moving_mean(buffer, 3)) && should_pass;
+    // moving_mean over all 5: (50+40+30+20+10)/5 = 30.0
+    should_pass =
+        ExpectEQ(30.0f, TimedVectorMath::moving_mean(buffer, 5)) && should_pass;
+  }
+  std::cout << "[2/" << kTestCount << "] - ema Test\n";
+  {
+    TimedVector<int, 5> buffer;
+    TimedVector<int, 5>::DataPoint points[5] = {
+        {10, 0}, {20, 1000}, {30, 2000}, {40, 3000}, {50, 4000}};
+    for (auto &p : points) {
+      buffer.push_back(p);
+    }
+    // ema over last 3: (50+40+30)/3 = 40.0
+    should_pass =
+        ExpectEQ(42.5f, TimedVectorMath::ema(buffer, 3)) && should_pass;
+    // e,a over all 5: (50+40+30+20+10)/5 = 30.0
+    should_pass =
+        ExpectFloatEQ(33.9506f, TimedVectorMath::ema(buffer, 5)) && should_pass;
+  }
+  std::cout << "[3/" << kTestCount << "] - Derive Test\n";
+  {
+    TimedVector<int, 5> buffer;
+    TimedVector<int, 5>::DataPoint points[5] = {
+        {10, 0}, {20, 1000}, {30, 2000}, {40, 3000}, {50, 4000}};
+    for (auto &p : points) {
+      buffer.push_back(p);
+    }
+    // derive
+    should_pass =
+        ExpectEQ(10.0f, TimedVectorMath::derive(buffer)) && should_pass;
+  }
+  std::cout << "[4/" << kTestCount << "] - Integrate Test\n";
+  {
+    TimedVector<int, 5> buffer;
+    TimedVector<int, 5>::DataPoint points[5] = {
+        {10, 0}, {20, 1000}, {30, 2000}, {40, 3000}, {50, 4000}};
+    for (auto &p : points) {
+      buffer.push_back(p);
+    }
+    // integrate over last 3
+    should_pass =
+        ExpectEQ(120.0f, TimedVectorMath::integrate(buffer, 3)) && should_pass;
+    // integrate over all 5
+    should_pass =
+        ExpectEQ(140.0f, TimedVectorMath::integrate(buffer, 5)) && should_pass;
   }
   return should_pass;
 }
@@ -357,6 +432,8 @@ void TestRunner() {
   success = TimedVectorAsVectorTest() && success;
   std::cout << "============================================================\n";
   success = TimedVectorTimeTest() && success;
+  std::cout << "============================================================\n";
+  success = VectorialMathTest() && success;
   std::cout << "============================================================\n";
   assert(success);
 }
