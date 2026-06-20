@@ -67,6 +67,10 @@ struct Vector {
     return vec_min(entriesAdded, N);
   }
 
+  bool is_full() const {
+    return size() == N;
+  }
+
   void reset() { 
     entriesAdded = 0; 
     for (uint32_t i = 0; i < N; i++) {
@@ -126,6 +130,10 @@ struct TimedVector {
 
     uint32_t size() const {
       return vec_min(entriesAdded, N);
+    }
+
+    bool is_full() const {
+      return size() == N;
     }
 
     void reset() { 
