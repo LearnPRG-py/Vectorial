@@ -3,6 +3,7 @@
 #include <thread>
 
 #include "../Vectorial.h"
+#include "../VectorialAvionics.h" // To compile in
 #include "../VectorialMath.h"
 
 #ifndef TEST_H
